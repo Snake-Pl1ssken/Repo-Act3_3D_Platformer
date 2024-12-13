@@ -13,6 +13,17 @@ public class PlayerController : MonoBehaviour
     [SerializeField] InputActionReference move;
     [SerializeField] InputActionReference jump;
     [SerializeField] InputActionReference run;
+
+    public enum OrientationMode
+    { 
+        ToMoveDirection,
+        ToCameraForward,
+        ToTarget,
+    };
+    [Header("Orientation")]
+    [SerializeField] OrientationMode orientationMode = OrientationMode.ToMoveDirection;
+    [SerializeField] Transform orientationTarget;
+    [SerializeField] float angularSpeed = 720f;
     Animator animator;
 
     CharacterController characterController;
@@ -45,6 +56,7 @@ public class PlayerController : MonoBehaviour
     {
         UpdateMovementOnPlane();
         UpdateVerticalMovement();
+        UpdateOrientation();
         UpdateAnimation();
     }
     Vector3 lastVelocity = Vector3.zero;
@@ -59,7 +71,7 @@ public class PlayerController : MonoBehaviour
         movementProjectedOnPlane = movementProjectedOnPlane.normalized * oldMovementMAgnitude;
 
         characterController.Move(movementProjectedOnPlane * speed * Time.deltaTime);
-        lastVelocity = movementProjectedOnPlane;
+        lastVelocity = movementProjectedOnPlane * speed;
     }
     float gravity = -9.8f;
     float verticalVelocity;
@@ -84,10 +96,42 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
+    void UpdateOrientation()
+    {
+        Vector3 desiredDirection = Vector3.forward;
+        switch (orientationMode)
+        {
+            case OrientationMode.ToMoveDirection:
+                desiredDirection = lastVelocity;
+                break;
+            case OrientationMode.ToCameraForward:
+                desiredDirection = mainCamera.transform.forward;
+                break;
+            case OrientationMode.ToTarget:
+                desiredDirection = orientationTarget.position - transform.position;
+                break;
+        }
+        desiredDirection.y = 0f;
+
+        float angleToApply = angularSpeed * Time.deltaTime;
+        // Distancia angular entre transform.forward y desiredDirection
+        float angularDistance = Vector3.SignedAngle(transform.forward, desiredDirection, Vector3.up);
+        float realAngleToApply = Mathf.Sign(angularDistance) * Mathf.Min(angleToApply, Mathf.Abs(angularDistance));
+        Quaternion rotationToApply = Quaternion.AngleAxis(realAngleToApply, Vector3.up);
+        transform.rotation = rotationToApply * transform.rotation;
+    }
+
     void UpdateAnimation()
     {
-        animator.SetFloat("SidewardVelocity", lastVelocity.x);
-        animator.SetFloat("ForwardVelocity", lastVelocity.z); 
+        //no hace falta
+        //Vector3 velocidadLocalAMundo = transform.TransformDirection(Vector3.forward);
+
+        Vector3 localVelocity = transform.InverseTransformDirection(lastVelocity); 
+        Vector3 normalizedVelocity = localVelocity / speed;
+
+        animator.SetFloat("SidewardVelocity", normalizedVelocity.x);
+        animator.SetFloat("ForwardVelocity", normalizedVelocity.z); 
     }
     private void OnDisable()
     {
