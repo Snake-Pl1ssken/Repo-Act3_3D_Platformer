@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController instance;
+    
     [Header("Movement Sttings")]
     [SerializeField] float speed = 5f;
     [SerializeField] float verticalSpeedOnGrounded = -5f;
@@ -30,12 +32,15 @@ public class PlayerController : MonoBehaviour
 
     Camera mainCamera;
 
+    HurtCollider hurtCollider;
 
     private void Awake()
     {
+        hurtCollider = GetComponent<HurtCollider>();
         characterController = GetComponent<CharacterController>();
         mainCamera = Camera.main;
         animator = GetComponentInChildren<Animator>();
+        instance = this;
     }
     private void OnEnable()
     {
@@ -48,6 +53,8 @@ public class PlayerController : MonoBehaviour
         move.action.canceled += OnMove;
 
         jump.action.performed += OnJump;
+
+        hurtCollider.onHitRecived.AddListener(OnHitRecived);
     }
 
 
@@ -144,6 +151,19 @@ public class PlayerController : MonoBehaviour
         move.action.canceled -= OnMove;
 
         jump.action.performed -= OnJump;
+
+        hurtCollider.onHitRecived.RemoveListener(OnHitRecived);
+    }
+
+    private void OnHitRecived(HitCollider hitCollider, HurtCollider hurtCollider)
+    { 
+        gameObject.SetActive(false);
+        Invoke(nameof(Resurrect), 3f);
+    }
+
+    void Resurrect()
+    {
+        gameObject.SetActive(true);
     }
 
     Vector3  rawMove = Vector3.zero;
@@ -152,7 +172,6 @@ public class PlayerController : MonoBehaviour
     {
         Vector2 rawInput = context.ReadValue<Vector2>();
         rawMove = new Vector3(rawInput.x, 0f, rawInput.y);
-        //Debug.Log("RawMOVE");
     }
     bool mustJump;
     private void OnJump(InputAction.CallbackContext context)
