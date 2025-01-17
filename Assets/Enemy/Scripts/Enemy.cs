@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -13,12 +14,21 @@ public class Enemy : MonoBehaviour
     Vector3 homeOrigin;
     Vector3 wanderPosition;
 
+    HurtCollider hurtCollider;
+
     private void Awake()
     {
+        hurtCollider = GetComponent<HurtCollider>();
+        
         agent = GetComponent<NavMeshAgent>();
         
         homeOrigin = transform.position;
         SelectWanderPosition();
+    }
+
+    private void OnEnable()
+    {
+        hurtCollider.onHitRecived.AddListener(OnHitRecived);
     }
 
     private void Update()
@@ -35,6 +45,20 @@ public class Enemy : MonoBehaviour
             agent.SetDestination(wanderPosition);
             if (Vector3.Distance(transform.position, wanderPosition) < reachingDistance)
             { SelectWanderPosition(); }
+        }
+    }
+
+    private void OnDisable()
+    {
+        hurtCollider.onHitRecived.RemoveListener(OnHitRecived);
+    }
+
+    private void OnHitRecived(HitCollider agressor, HurtCollider victim)
+    {
+        if(agressor.CompareTag("Player"))
+        {
+            Debug.Log("Muerte Enemigo");
+            this.gameObject.SetActive(false);
         }
     }
 

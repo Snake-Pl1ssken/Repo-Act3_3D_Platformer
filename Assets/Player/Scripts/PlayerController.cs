@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -34,13 +35,21 @@ public class PlayerController : MonoBehaviour
 
     HurtCollider hurtCollider;
 
+    HitCollider hitCollider;
+
     private void Awake()
     {
-        hurtCollider = GetComponent<HurtCollider>();
+        instance = this;
+
         characterController = GetComponent<CharacterController>();
         mainCamera = Camera.main;
         animator = GetComponentInChildren<Animator>();
-        instance = this;
+
+        hitCollider = GetComponentInChildren<HitCollider>();
+
+        hurtCollider = GetComponent<HurtCollider>();
+
+        animator.keepAnimatorStateOnDisable = true;
     }
     private void OnEnable()
     {
@@ -55,8 +64,8 @@ public class PlayerController : MonoBehaviour
         jump.action.performed += OnJump;
 
         hurtCollider.onHitRecived.AddListener(OnHitRecived);
+        hitCollider.onHitDelivered.AddListener(OnHitDelivered);
     }
-
 
 
     private void Update()
@@ -153,8 +162,19 @@ public class PlayerController : MonoBehaviour
         jump.action.performed -= OnJump;
 
         hurtCollider.onHitRecived.RemoveListener(OnHitRecived);
+        hitCollider.onHitDelivered.RemoveListener(OnHitDelivered);
     }
 
+    private void OnHitDelivered(HitCollider agressor, HurtCollider victim)
+    {
+        if (victim.CompareTag("Enemy"))
+        {
+            Debug.Log("jumpVelocity original: " + jumpVelocity);
+            jumpVelocity += 5;
+            Debug.Log("jumpVelocity new: " + jumpVelocity);
+        }
+        //arg0 reparte arg1 recibe
+    }
     private void OnHitRecived(HitCollider hitCollider, HurtCollider hurtCollider)
     { 
         gameObject.SetActive(false);
