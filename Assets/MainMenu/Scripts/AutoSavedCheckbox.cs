@@ -3,10 +3,10 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class NewMonoBehaviourScript : MonoBehaviour
+public class AutoSavedCheckBox : MonoBehaviour
 {
-    string prefKey;
-    bool defaultValue;
+    public string prefKey;
+    public bool defaultValue;
 
     private Toggle toggle;
 

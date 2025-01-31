@@ -2,8 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 public class AutoSavedSlider : MonoBehaviour
 {
-    string savedSlider;
-    float initialValue;
+    [SerializeField] string savedSlider;
+    [SerializeField] float initialValue;
 
     private Slider slider;
 
@@ -15,22 +15,22 @@ public class AutoSavedSlider : MonoBehaviour
     void Awake()
     {
         slider = GetComponent<Slider>();
-        slider.value = PlayerPrefs.GetFloat(savedSlider, initialValue);
         slider.onValueChanged.AddListener(onSliderValueChanged);
+        slider.value = PlayerPrefs.GetFloat(savedSlider, initialValue);
 
         //Cambiar el Slider value por el valor recuperado de playerprefs: savedSlider
     }
 
-
-    void start()
+    void Start()
     {
-        InternalValueChanged(initialValue);
+        InternalValueChanged(slider.value);
     }
+
     private void onSliderValueChanged(float value)
     {
-        PlayerPrefs.SetFloat(savedSlider, initialValue);
+        PlayerPrefs.SetFloat(savedSlider, value);
         PlayerPrefs.Save();
 
-        InternalValueChanged(initialValue);
+        InternalValueChanged(value);
     }
 }
