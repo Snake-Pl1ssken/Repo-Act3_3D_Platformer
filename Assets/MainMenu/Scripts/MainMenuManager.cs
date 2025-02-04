@@ -3,9 +3,15 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuManager : MonoBehaviour
 {
-    [SerializeField] GameObject canvasMainMenu;
-    [SerializeField] GameObject canvasSettings;
-    
+    [SerializeField] CanvasGroup canvasMainMenu;
+    [SerializeField] CanvasGroup canvasSettings;
+
+    private void Start()
+    {
+        SetCanvasGroup(canvasMainMenu, 1f, true);
+        SetCanvasGroup(canvasSettings, 0f, false);
+    }
+
     public void SwitchScene()
     {
         SceneManager.LoadScene("Level1");
@@ -18,13 +24,20 @@ public class MainMenuManager : MonoBehaviour
 
     public void SettingsGame()
     {
-        canvasMainMenu.SetActive(false);
-        canvasSettings.SetActive(true);
+        SetCanvasGroup(canvasMainMenu, 0f, false);
+        SetCanvasGroup(canvasSettings, 1f, true);
     }
 
     public void BackMainMenu()
     {
-        canvasMainMenu.SetActive(true);
-        canvasSettings.SetActive(false);
+        SetCanvasGroup(canvasMainMenu, 1f, true);
+        SetCanvasGroup(canvasSettings, 0f, false);
+    }
+
+    private void SetCanvasGroup(CanvasGroup canvasGroup, float alpha, bool interactable)
+    {
+        canvasGroup.alpha = alpha;
+        canvasGroup.interactable = interactable;
+        canvasGroup.blocksRaycasts = interactable;
     }
 }

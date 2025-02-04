@@ -1,30 +1,102 @@
-using System.Runtime.CompilerServices;
 using Unity.Cinemachine;
 using UnityEngine;
-using UnityEngine.Audio;
+using UnityEngine.UI;
 
 public class AutoSavedSlider_ForMouseAxisSensitivity : AutoSavedSlider
 {
-    public CinemachineFreeLook freeLookcamera;
-    private bool isAxisX;
-    private float multiplicadorMax;
-    private float multiplicadorMin;
+    [SerializeField][Range(0.1f, 100f)] float sensivilityX;
+    [SerializeField][Range(0.1f, 100f)] float sensivilityY;
+    [SerializeField] CinemachineInputAxisController inputAxisController;
+    [SerializeField] Slider MouseAxisX;
+    [SerializeField] Slider MouseAxisY;
 
+    private void Start()
+    {
+        // Cargar valores guardados ANTES de usarlos
+        sensivilityX = PlayerPrefs.GetFloat("SensivilityX", 10f);
+        sensivilityY = PlayerPrefs.GetFloat("SensivilityY", 10f);
+
+        // Asignar valores a los sliders
+        MouseAxisX.value = sensivilityX;
+        MouseAxisX.onValueChanged.AddListener(UpdateSensitivityX);
+        MouseAxisY.value = sensivilityY;
+        MouseAxisY.onValueChanged.AddListener(UpdateSensitivityY);
+
+        // Aplicar sensibilidad guardada a Cinemachine
+        foreach (var controller in inputAxisController.Controllers)
+        {
+            if (controller.Name == "Look Orbit X")
+            {
+                controller.Input.Gain = sensivilityX;
+            }
+            else if (controller.Name == "Look Orbit Y")
+            {
+                controller.Input.Gain = sensivilityY;
+            }
+        }
+    }
 
     public override void InternalValueChanged(float value)
     {
-        float interpolatedValue = Mathf.Lerp(multiplicadorMin, multiplicadorMax, value);
-
-        if (isAxisX)
+        // Aplicar el valor actualizado a Cinemachine
+        foreach (var controller in inputAxisController.Controllers)
         {
-           freeLookcamera.m_XAxis.m_MaxSpeed = interpolatedValue;
-        }
-        else if (!isAxisX)
-        {
-           freeLookcamera.m_YAxis.m_MaxSpeed = interpolatedValue;
+            if (controller.Name == "Look Orbit X")
+            {
+                controller.Input.Gain = sensivilityX;
+            }
+            else if (controller.Name == "Look Orbit Y")
+            {
+                controller.Input.Gain = sensivilityY;
+            }
         }
     }
+
+    public void UpdateSensitivityX(float value)
+    {
+        sensivilityX = value;
+        foreach (var controller in inputAxisController.Controllers)
+        {
+            if (controller.Name == "Look Orbit X")
+            {
+                controller.Input.Gain = value;
+            }
+        }
+        PlayerPrefs.SetFloat("SensivilityX", value);
+        PlayerPrefs.Save();  // Guardar inmediatamente
+    }
+
+    public void UpdateSensitivityY(float value)
+    {
+        sensivilityY = value;
+        foreach (var controller in inputAxisController.Controllers)
+        {
+            if (controller.Name == "Look Orbit Y")
+            {
+                controller.Input.Gain = value;
+            }
+        }
+        PlayerPrefs.SetFloat("SensivilityY", value);
+        PlayerPrefs.Save();  // Guardar inmediatamente
+    }
+
+    private void OnValidate()
+    {
+#if UNITY_EDITOR  // Solo ejecutar en el editor
+        foreach (var controller in inputAxisController.Controllers)
+        {
+            if (controller.Name == "Look Orbit X")
+            {
+                controller.Input.Gain = sensivilityX;
+            }
+            else if (controller.Name == "Look Orbit Y")
+            {
+                controller.Input.Gain = sensivilityY;
+            }
+        }
+
+        if (MouseAxisX) MouseAxisX.value = sensivilityX;
+        if (MouseAxisY) MouseAxisY.value = sensivilityY;
+#endif
+    }
 }
-
-
-//Convertir el gain del cinemachin input axis controller, buscar mathf.sign que devuelve o 1 o -1 dependiendo del valor de un numero

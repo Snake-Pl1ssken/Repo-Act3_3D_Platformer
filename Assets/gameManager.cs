@@ -1,103 +1,80 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.HID;
 using UnityEngine.SceneManagement;
 
 public class MenuPausa : MonoBehaviour
 {
-    public static MenuPausa instance
-    {
-        get; private set;
-    }
+   // public static MenuPausa instance { get; private set; }
 
     [Header("Input Actions Pause")]
-    [SerializeField] InputActionReference pause;
-    [SerializeField] GameObject pauseScreen;
+    [SerializeField] private InputActionReference pause;
+    [SerializeField] private CanvasGroup pauseScreen;
 
+    private bool isPaused = false;
 
-    bool pauseState = false;
+    //private void Awake()
+    //{
+    //    if (instance == null)
+    //    {
+    //        instance = this;
+    //    }
+    //}
 
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-    }
-
-    void OnEnable()
+    private void OnEnable()
     {
         pause.action.Enable();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        if (pause.action.WasPressedThisFrame() && !pauseState)
+        SetPauseScreen(0f, false);
+    }
+
+    private void Update()
+    {
+        if (pause.action.WasPressedThisFrame())
         {
-            // Debug.Log("saltando");
-            pauseScreen.SetActive(true);
-            //Time.timeScale = 0f;
-            pauseState = true;
-        }
-        else if (pause.action.WasPressedThisFrame() && pauseState)
-        {
-            pauseScreen.SetActive(false);
-           // pauseState = false;
-            Time.timeScale = 1f;
+            TogglePause();
         }
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         pause.action.Disable();
     }
 
-    public void botonResume()
+    private void TogglePause()
     {
-        pauseScreen.SetActive(false);
-        pauseState = false;
-        Time.timeScale = 1f;
-    }
-    public void botonRestart()
-    {
-        pauseState = false;
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
-    public void botonMainMenu()
-    {
-        pauseState = false;
-        Time.timeScale = 1f;
-        SceneManager.LoadScene("Main_Menu");
+        isPaused = !isPaused;
+        Time.timeScale = isPaused ? 0f : 1f;
+        SetPauseScreen(isPaused ? 1f : 0f, isPaused);
     }
 
-    //public void PerderVida()
+    public void BotonResume()
+    {
+        isPaused = false;
+        Time.timeScale = 1f;
+        SetPauseScreen(0f, false);
+    }
+
+    //public void BotonRestart()
     //{
-    //    vidas -= 1;
-    //    hud.DesactivarVida(vidas);
-
-    //    if (vidas == 0)
-    //    {
-    //        SceneManager.LoadScene("Main_Menu");
-    //    }
-
+    //    isPaused = false;
+    //    Time.timeScale = 1f;
+    //    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     //}
 
-    //public bool RecuperarVida()
+    //public void BotonMainMenu()
     //{
-
-    //    if (vidas == 3)
-    //    {
-    //        return false;
-    //    }
-
-    //    hud.ActivarVida(vidas);
-    //    vidas += 1;
-
-    //    return true;
+    //    isPaused = false;
+    //    Time.timeScale = 1f;
+    //    SceneManager.LoadScene("Main_Menu");
     //}
+
+    private void SetPauseScreen(float alpha, bool interactable)
+    {
+        pauseScreen.alpha = alpha;
+        pauseScreen.interactable = interactable;
+        pauseScreen.blocksRaycasts = interactable;
+    }
 }

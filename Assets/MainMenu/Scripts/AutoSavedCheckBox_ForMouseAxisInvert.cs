@@ -1,24 +1,44 @@
+using System.Runtime.CompilerServices;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class AutoSavedCheckBox_ForMouseAxisInvert : AutoSavedCheckBox
 {
+    [SerializeField] CinemachineInputAxisController inputAxisController;
+    [SerializeField] Toggle flipX;
+    [SerializeField] Toggle flipY;
 
-    private CinemachineFreeLook freeLookcamera;
-    //private bool ejeInvertir;
-    [SerializeField] string nameParametro;
-
-    public override void InternalValueChanged(bool value)
+    private void Start()
     {
-        bool isInverted = value;
+        flipX.onValueChanged.AddListener(FlipXAxis);
+        flipY.onValueChanged.AddListener(FlipYAxis);
 
-        if (nameParametro == "Toggle_InvertMouseAxisX")
+        flipX.isOn = PlayerPrefs.GetInt("FlipXAxis", 0) == 1;
+        flipY.isOn = PlayerPrefs.GetInt("FlipYAxis", 0) == 1;
+    }
+
+    public void FlipXAxis(bool isFlipped)
+    {
+        foreach (var controller in inputAxisController.Controllers)
         {
-            freeLookcamera.m_XAxis.m_InvertInput = isInverted;
+            if (controller.Name == "Look Orbit X")
+            {
+                controller.Input.Gain = isFlipped ? -Mathf.Abs(controller.Input.Gain) : Mathf.Abs(controller.Input.Gain);
+            }
         }
-        else if (nameParametro == "Toggle_InvertMouseAxisY")
+        PlayerPrefs.SetInt("FlipXAxis", isFlipped ? 1 : 0);
+    }
+
+    public void FlipYAxis(bool isFlipped)
+    {
+        foreach (var controller in inputAxisController.Controllers)
         {
-            freeLookcamera.m_YAxis.m_InvertInput = isInverted;
+            if (controller.Name == "Look Orbit Y")
+            {
+                controller.Input.Gain = isFlipped ? -Mathf.Abs(controller.Input.Gain) : Mathf.Abs(controller.Input.Gain);
+            }
         }
+        PlayerPrefs.SetInt("FlipYAxis", isFlipped ? 1 : 0);
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
@@ -37,6 +38,8 @@ public class PlayerController : MonoBehaviour
 
     HitCollider hitCollider;
 
+    [SerializeField]AudioSource audioSource;
+
     private void Awake()
     {
         instance = this;
@@ -48,6 +51,8 @@ public class PlayerController : MonoBehaviour
         hitCollider = GetComponentInChildren<HitCollider>();
 
         hurtCollider = GetComponent<HurtCollider>();
+
+        audioSource = GetComponent<AudioSource>();
 
         animator.keepAnimatorStateOnDisable = true;
     }
@@ -98,7 +103,8 @@ public class PlayerController : MonoBehaviour
         characterController.Move(Vector3.up * verticalVelocity * Time.deltaTime);
         lastVelocity.y = verticalVelocity;  
         if (characterController.isGrounded)
-        { 
+        {
+
             verticalVelocity = verticalSpeedOnGrounded;
         }
         if (mustJump)
@@ -169,6 +175,7 @@ public class PlayerController : MonoBehaviour
     {
         if (victim.CompareTag("Enemy"))
         {
+
             Debug.Log("jumpVelocity original: " + jumpVelocity);
             jumpVelocity += 5;
             Debug.Log("jumpVelocity new: " + jumpVelocity);
@@ -196,6 +203,7 @@ public class PlayerController : MonoBehaviour
     bool mustJump;
     private void OnJump(InputAction.CallbackContext context)
     {
+        audioSource.Play();
         mustJump = true;
     }
 

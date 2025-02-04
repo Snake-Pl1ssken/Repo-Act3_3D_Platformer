@@ -15,7 +15,7 @@ public class AutoSavedSlider : MonoBehaviour
     void Awake()
     {
         slider = GetComponent<Slider>();
-        slider.onValueChanged.AddListener(onSliderValueChanged);
+        slider.onValueChanged.AddListener(OnSliderValueChanged);
         slider.value = PlayerPrefs.GetFloat(savedSlider, initialValue);
 
         //Cambiar el Slider value por el valor recuperado de playerprefs: savedSlider
@@ -26,7 +26,7 @@ public class AutoSavedSlider : MonoBehaviour
         InternalValueChanged(slider.value);
     }
 
-    private void onSliderValueChanged(float value)
+    private void OnSliderValueChanged(float value)
     {
         PlayerPrefs.SetFloat(savedSlider, value);
         PlayerPrefs.Save();
