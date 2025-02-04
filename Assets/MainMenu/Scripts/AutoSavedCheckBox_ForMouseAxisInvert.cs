@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,11 +10,21 @@ public class AutoSavedCheckBox_ForMouseAxisInvert : AutoSavedCheckBox
 
     private void Start()
     {
+        // Recuperar valores de PlayerPrefs
+        bool isFlippedX = PlayerPrefs.GetInt("FlipXAxis", 0) == 1;
+        bool isFlippedY = PlayerPrefs.GetInt("FlipYAxis", 0) == 1;
+
+        // Asignar valores a los toggles
+        flipX.isOn = isFlippedX;
+        flipY.isOn = isFlippedY;
+
+        // Aplicar inversión al iniciar
+        FlipXAxis(isFlippedX);
+        FlipYAxis(isFlippedY);
+
+        // Agregar listeners para cambiar los valores cuando el usuario interactúe con los toggles
         flipX.onValueChanged.AddListener(FlipXAxis);
         flipY.onValueChanged.AddListener(FlipYAxis);
-
-        flipX.isOn = PlayerPrefs.GetInt("FlipXAxis", 0) == 1;
-        flipY.isOn = PlayerPrefs.GetInt("FlipYAxis", 0) == 1;
     }
 
     public void FlipXAxis(bool isFlipped)
@@ -24,10 +33,14 @@ public class AutoSavedCheckBox_ForMouseAxisInvert : AutoSavedCheckBox
         {
             if (controller.Name == "Look Orbit X")
             {
-                controller.Input.Gain = isFlipped ? -Mathf.Abs(controller.Input.Gain) : Mathf.Abs(controller.Input.Gain);
+                float originalGain = Mathf.Abs(controller.Input.Gain); // Asegurar que siempre partimos de un valor positivo
+                controller.Input.Gain = isFlipped ? -originalGain : originalGain;
             }
         }
+
+        // Guardar configuración en PlayerPrefs
         PlayerPrefs.SetInt("FlipXAxis", isFlipped ? 1 : 0);
+        PlayerPrefs.Save();
     }
 
     public void FlipYAxis(bool isFlipped)
@@ -36,9 +49,13 @@ public class AutoSavedCheckBox_ForMouseAxisInvert : AutoSavedCheckBox
         {
             if (controller.Name == "Look Orbit Y")
             {
-                controller.Input.Gain = isFlipped ? -Mathf.Abs(controller.Input.Gain) : Mathf.Abs(controller.Input.Gain);
+                float originalGain = Mathf.Abs(controller.Input.Gain); // Asegurar que siempre partimos de un valor positivo
+                controller.Input.Gain = isFlipped ? -originalGain : originalGain;
             }
         }
+
+        // Guardar configuración en PlayerPrefs
         PlayerPrefs.SetInt("FlipYAxis", isFlipped ? 1 : 0);
+        PlayerPrefs.Save();
     }
 }
