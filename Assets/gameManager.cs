@@ -12,13 +12,6 @@ public class MenuPausa : MonoBehaviour
 
     private bool isPaused = false;
 
-    //private void Awake()
-    //{
-    //    if (instance == null)
-    //    {
-    //        instance = this;
-    //    }
-    //}
 
     private void OnEnable()
     {
@@ -57,24 +50,15 @@ public class MenuPausa : MonoBehaviour
         SetPauseScreen(0f, false);
     }
 
-    //public void BotonRestart()
-    //{
-    //    isPaused = false;
-    //    Time.timeScale = 1f;
-    //    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    //}
-
-    //public void BotonMainMenu()
-    //{
-    //    isPaused = false;
-    //    Time.timeScale = 1f;
-    //    SceneManager.LoadScene("Main_Menu");
-    //}
-
     private void SetPauseScreen(float alpha, bool interactable)
     {
         pauseScreen.alpha = alpha;
         pauseScreen.interactable = interactable;
         pauseScreen.blocksRaycasts = interactable;
+    }
+
+    public void loadMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
     }
 }

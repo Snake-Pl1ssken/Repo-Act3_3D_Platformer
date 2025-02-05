@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] InputActionReference move;
     [SerializeField] InputActionReference jump;
     [SerializeField] InputActionReference run;
+    [SerializeField] GameObject DeadCanvas;
 
     public enum OrientationMode
     { 
@@ -185,12 +187,14 @@ public class PlayerController : MonoBehaviour
     private void OnHitRecived(HitCollider hitCollider, HurtCollider hurtCollider)
     { 
         gameObject.SetActive(false);
+        DeadCanvas.SetActive(true);
+        //Coin.ResetCoins();
         Invoke(nameof(Resurrect), 3f);
     }
 
     void Resurrect()
     {
-        gameObject.SetActive(true);
+        SceneManager.LoadScene("MainMenu");
     }
 
     Vector3  rawMove = Vector3.zero;

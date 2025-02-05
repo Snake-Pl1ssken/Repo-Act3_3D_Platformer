@@ -14,6 +14,7 @@ public class MainMenuManager : MonoBehaviour
 
     public void SwitchScene()
     {
+        Coin.ResetCoins();
         SceneManager.LoadScene("Level1");
     }
 
